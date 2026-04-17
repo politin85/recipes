@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>גרהם קרקרס ביתיים</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;700;900&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1612;
+    --surface: #231f1a;
+    --surface2: #2d2720;
+    --border: #3d3530;
+    --accent: #c8860a;
+    --accent-light: #e8a020;
+    --text: #f0e8d8;
+    --text-muted: #9a8878;
+    --text-dim: #6a5a4a;
+    --green: #4a8c5c;
+    --radius: 16px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+    direction: rtl;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .recipe-header {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 28px 24px 24px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .recipe-header::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(200,134,10,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .recipe-emoji {
+    font-size: 40px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .recipe-title {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .recipe-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .meta-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .meta-chip span { color: var(--text); font-weight: 500; }
+
+  /* SERVINGS */
+  .servings-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .servings-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .servings-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .servings-control {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .srv-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .srv-btn:hover { background: var(--accent); color: #fff; }
+
+  .srv-count {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    min-width: 28px;
+    text-align: center;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    padding: 0 4px;
+    margin-bottom: 8px;
+    margin-top: 20px;
+  }
+
+  /* INGREDIENTS */
+  .ingredients-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .ingredient-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: default;
+  }
+  .ingredient-row:last-child { border-bottom: none; }
+  .ingredient-row:hover { background: var(--surface2); }
+
+  .ing-name {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 400;
+  }
+  .ing-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .ing-amount {
+    font-size: 14px;
+    color: var(--accent-light);
+    font-weight: 600;
+    white-space: nowrap;
+    margin-right: 12px;
+    text-align: left;
+    direction: ltr;
+  }
+
+  /* STEPS */
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .step-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .step-card.active { border-color: var(--accent); }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+  }
+
+  .step-num {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .step-card.active .step-num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .step-card.done .step-num {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .step-body {
+    display: none;
+    padding: 0 20px 18px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .step-card.active .step-body,
+  .step-card.done .step-body { display: block; }
+
+  .step-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.75;
+    padding-top: 14px;
+  }
+  .step-text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* TIMER */
+  .timer-wrap {
+    margin-top: 14px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--border);
+  }
+
+  .timer-info { display: flex; align-items: center; gap: 10px; }
+
+  .timer-icon {
+    font-size: 20px;
+  }
+
+  .timer-label {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .timer-display {
+    font-family: 'Frank Ruhl Libre', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    direction: ltr;
+  }
+  .timer-display.running { color: var(--accent-light); }
+  .timer-display.done-t { color: var(--green); }
+
+  .timer-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Heebo', sans-serif;
+    transition: background 0.15s;
+  }
+  .timer-btn:hover { background: var(--accent-light); }
+  .timer-btn.stop { background: #7a3030; }
+
+  /* TTS BUTTON */
+  .tts-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-family: 'Heebo', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tts-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .tts-btn.speaking { border-color: var(--accent); color: var(--accent); background: rgba(200,134,10,0.08); }
+  .tts-btn .tts-icon { font-size: 15px; }
+
+  /* VOICE SELECTOR */
+  .voice-selector-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .voice-selector-label { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; }
+  .voice-select {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px;
+    padding: 6px 10px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    direction: rtl;
+  }
+  .voice-select:focus { outline: none; border-color: var(--accent); }
+
+  /* STEP NAV */
+  .step-nav {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Heebo', sans-serif;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { border-color: var(--text-muted); color: var(--text); }
+  .nav-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .nav-btn.primary:hover { background: var(--accent-light); border-color: var(--accent-light); }
+
+  /* NOTES */
+  .notes-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+
+  .note-item {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .note-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+  .note-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 5px;
+    letter-spacing: 0.05em;
+  }
+  .note-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  /* COOKING MODE TOGGLE */
+  .cooking-mode-bar {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cm-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .cm-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .toggle {
+    width: 44px; height: 26px;
+    background: var(--surface2);
+    border-radius: 13px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .toggle.on { background: var(--accent); border-color: var(--accent); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; right: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .toggle.on::after { transform: translateX(-18px); background: #fff; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="recipe-header">
+    <span class="recipe-emoji">🍪</span>
+    <h1 class="recipe-title">גרהם קרקרס ביתיים</h1>
+    <p class="recipe-desc">קרקרס חיטה מלאה עם דבש וקינמון, הרבה יותר טעימים מהקנוי</p>
+    <div class="meta-row">
+      <div class="meta-chip">⏱ הכנה <span>10 ד׳</span></div>
+      <div class="meta-chip">🔥 אפייה <span>10-12 ד׳</span></div>
+      <div class="meta-chip">❄️ קירור <span>שעה</span></div>
+    </div>
+  </div>
+
+  <!-- SERVINGS -->
+  <div class="servings-card">
+    <div>
+      <div class="servings-label">מספר מנות</div>
+      <div class="servings-sub" id="srv-sub">24 קרקרס</div>
+    </div>
+    <div class="servings-control">
+      <button class="srv-btn" onclick="changeServings(-1)">−</button>
+      <div class="srv-count" id="srv-count">24</div>
+      <button class="srv-btn" onclick="changeServings(1)">+</button>
+    </div>
+  </div>
+
+  <!-- COOKING MODE -->
+  <div class="cooking-mode-bar">
+    <div>
+      <div class="cm-label">מצב בישול</div>
+      <div class="cm-sub">פתח שלב אחד בכל פעם</div>
+    </div>
+    <div class="toggle" id="cm-toggle" onclick="toggleCookingMode()"></div>
+  </div>
+
+  <!-- EXPAND ALL -->
+  <div class="cooking-mode-bar" id="expand-all-bar" style="margin-top:-4px;">
+    <div>
+      <div class="cm-label">פתח את כל הצעדים</div>
+      <div class="cm-sub">הצג את כל הוראות ההכנה</div>
+    </div>
+    <div class="toggle" id="expand-toggle" onclick="toggleExpandAll()"></div>
+  </div>
+
+  <!-- INGREDIENTS -->
+  <div class="section-title">מצרכים</div>
+  <div class="ingredients-card" id="ingredients-list">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- STEPS -->
+  <div class="section-title">הוראות הכנה</div>
+  <div class="steps-list" id="steps-list">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- NOTES -->
+  <div class="section-title">הערות</div>
+  <div class="notes-card">
+    <div class="note-item">
+      <div class="note-label">אחסון</div>
+      <div class="note-text">בקופסה אטומה עד 3 שבועות בטמפרטורת החדר, או הקפאה עד 3 חודשים.</div>
+    </div>
+    <div class="note-item">
+      <div class="note-label">הכנה מראש</div>
+      <div class="note-text">הבצק העטוף בניילון נשמר במקרר עד שבוע. מוציאים 30 דקות לפני הרידוד.</div>
+    </div>
+    <div class="note-item">
+      <div class="note-label">חשוב</div>
+      <div class="note-text">אין להחליף בקמח חיטה מלאה טחונה על אבן או חיטה לבנה מלאה.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BASE = 24;
+let servings = 24;
+let cookingMode = false;
+let expandAll = false;
+let activeStep = 0;
+let timers = {};
+
+const ingredients = [
+  { name: 'קמח חיטה מלאה', note: 'ועוד לפיזור', amount: 240, unit: 'גרם' },
+  { name: 'קינמון טחון', amount: 1, unit: 'כפית' },
+  { name: 'סודה לשתייה', amount: 1, unit: 'כפית' },
+  { name: 'מלח שולחן', amount: 2, unit: 'גרם' },
+  { name: 'חמאה רכה', amount: 100, unit: 'גרם' },
+  { name: 'סוכר חום בהיר', note: 'ארוז היטב', amount: 200, unit: 'גרם' },
+  { name: 'חלב מלא', amount: 45, unit: 'מ"ל' },
+  { name: 'דבש', amount: 110, unit: 'גרם' },
+  { name: 'תמצית וניל', amount: 10, unit: 'מ"ל' },
+];
+
+const steps = [
+  {
+    title: 'ערבוב מרכיבים יבשים',
+    text: 'בקערה בינונית מערבבים בשקשוק <strong>קמח חיטה מלאה</strong> ({0001}), <strong>קינמון טחון</strong> (1 כפית), <strong>סודה לשתייה</strong> (1 כפית) ו-<strong>מלח שולחן</strong> (2 גרם). מניחים בצד.',
+    timer: null,
+    amounts: [0],
+  },
+  {
+    title: 'קרם חמאה וסוכר',
+    text: 'במיקסר עם וו גיטרה (או במיקסר ידני) מקציפים <strong>חמאה רכה</strong> ({0005}) ו-<strong>סוכר חום בהיר</strong> ({0006}) יחד עד לתערובת אחידה. מגבירים למהירות בינונית ומקציפים כ-3 דקות עד לתערובת אוורירית ובהירה.',
+    timer: null,
+    amounts: [4, 5],
+  },
+  {
+    title: 'הוספת קמח ונוזלים',
+    text: 'מורידים למהירות נמוכה ומוסיפים את תערובת ה<strong>קמח</strong>. מערבבים כ-2 דקות עד להיטמעות. מוסיפים <strong>חלב מלא</strong> ({0007}), <strong>דבש</strong> ({0008}) ו-<strong>תמצית וניל</strong> ({0009}). מערבבים עד להיטמעות. הבצק אמור להיות רך ודביק.',
+    timer: null,
+    amounts: [0, 6, 7, 8],
+  },
+  {
+    title: 'קירור הבצק',
+    text: 'מחלקים את הבצק לשני דיסקים, עוטפים בניילון נצמד ומקררים לפחות שעה אחת.',
+    timer: 3600,
+    amounts: [],
+  },
+  {
+    title: 'הכנה לאפייה',
+    text: 'מכוננים את מדף התנור לאמצע ומחממים את התנור ל-175°C. מקמחים נדיבות את המשטח או נייר אפייה ומניחים דיסק בצק אחד במרכז.',
+    timer: null,
+    amounts: [],
+  },
+  {
+    title: 'פריסת הבצק',
+    text: 'מעצבים את ה<strong>בצק</strong> למלבן בגודל כ-13x15 ס"מ, מפזרים <strong>קמח</strong> מעל, הופכים ומפזרים שוב. מרדדים ממרכז כלפי חוץ (תוך הוספת <strong>קמח</strong> לפי הצורך) עד לגודל של כ-38x28 ס"מ ועובי של 3 מ"מ בערך. מעבירים עם נייר האפייה לתבנית ומנקים קמח עודף. חוזרים על התהליך עם הדיסק השני.',
+    timer: null,
+    amounts: [],
+  },
+  {
+    title: 'חריצה ודוקירה',
+    text: 'לקרקרס בסגנון קנוי: חורצים כל יריעה ל-12 מלבנים (כ-6x12 ס"מ) ומנקבים בשיפוד במבוק, מזלג או צד צר של מקל אכילה. אפשר גם להשאיר את ה<strong>בצק</strong> ללא חיתוך.',
+    timer: null,
+    amounts: [],
+  },
+  {
+    title: 'אפייה וקירור',
+    text: 'אופים 10-12 דקות עד שה<strong>קרקרס</strong> מוצקים ומשחימים. מיד לאחר היציאה מהתנור, חותכים לאורך הקווים שחרצו (בסכין או גלגל פיצה). מצננים לטמפרטורת החדר ישירות על התבניות.',
+    timer: 660,
+    amounts: [],
+  },
+];
+
+function formatAmount(base, ratio, unit) {
+  const val = base * ratio;
+  if (unit === 'גרם' || unit === 'מ"ל') {
+    const rounded = Math.round(val / 5) * 5 || Math.round(val);
+    return `${rounded} ${unit}`;
+  }
+  if (unit === 'כפית') {
+    if (val === 0.5) return '½ כפית';
+    if (val === 1.5) return '1½ כפית';
+    if (val % 1 === 0) return `${val} כפית`;
+    return `${val.toFixed(1)} כפית`;
+  }
+  return `${val} ${unit}`;
+}
+
+function renderIngredients() {
+  const ratio = servings / BASE;
+  const list = document.getElementById('ingredients-list');
+  list.innerHTML = ingredients.map(ing => `
+    <div class="ingredient-row">
+      <div>
+        <div class="ing-name">${ing.name}</div>
+        ${ing.note ? `<div class="ing-note">${ing.note}</div>` : ''}
+      </div>
+      <div class="ing-amount">${formatAmount(ing.amount, ratio, ing.unit)}</div>
+    </div>
+  `).join('');
+}
+
+function getStepText(step) {
+  const ratio = servings / BASE;
+  let text = step.text;
+  step.amounts.forEach(idx => {
+    const ing = ingredients[idx];
+    const amt = formatAmount(ing.amount, ratio, ing.unit);
+    text = text.replace(`{${String(idx+1).padStart(4,'0')}}`, amt);
+  });
+  return text;
+}
+
+function renderSteps() {
+  const list = document.getElementById('steps-list');
+  list.innerHTML = steps.map((step, i) => {
+    const isActive = i === activeStep;
+    const isDone = i < activeStep;
+    let cls = '';
+    if (cookingMode) { if (isActive) cls = 'active'; else if (isDone) cls = 'done'; }
+    else if (expandAll) { cls = closedSteps.has(i) ? '' : 'active'; }
+    else { cls = isActive ? 'active' : ''; }
+
+    const timerHtml = step.timer ? buildTimer(step.timer, i) : '';
+    const navHtml = cookingMode && isActive ? buildNav(i) : '';
+
+    const ttsHtml = `<button class="tts-btn" id="tts-btn-${i}" onclick="speakStep(${i})"><span class="tts-icon">🔊</span><span id="tts-label-${i}">הקראה</span></button>`;
+
+    return `
+      <div class="step-card ${cls}" id="step-${i}">
+        <div class="step-header" onclick="toggleStep(${i})">
+          <div class="step-num">${isDone && cookingMode ? '✓' : i+1}</div>
+          <div class="step-title">${step.title}</div>
+        </div>
+        <div class="step-body">
+          <div class="step-text">${getStepText(step)}</div>
+          ${ttsHtml}
+          ${timerHtml}
+          ${navHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function buildTimer(secs, stepIdx) {
+  const tid = `timer-${stepIdx}`;
+  const state = timers[stepIdx] || { remaining: secs, running: false, done: false };
+  const disp = formatTime(state.remaining);
+  let cls = state.running ? 'running' : state.done ? 'done-t' : '';
+  const btnLabel = state.running ? 'עצור' : state.done ? 'אפס' : 'התחל';
+  const btnCls = state.running ? 'stop' : '';
+  return `
+    <div class="timer-wrap">
+      <div class="timer-info">
+        <div class="timer-icon">⏱</div>
+        <div>
+          <div class="timer-label">טיימר</div>
+          <div class="timer-display ${cls}" id="${tid}">${disp}</div>
+        </div>
+      </div>
+      <button class="timer-btn ${btnCls}" onclick="handleTimer(${stepIdx}, ${secs})">${btnLabel}</button>
+    </div>
+  `;
+}
+
+function buildNav(i) {
+  const isLast = i === steps.length - 1;
+  const isFirst = i === 0;
+  return `
+    <div class="step-nav">
+      ${!isFirst ? `<button class="nav-btn" onclick="goStep(${i-1})">← הקודם</button>` : '<div></div>'}
+      ${!isLast ? `<button class="nav-btn primary" onclick="goStep(${i+1})">הבא →</button>` : `<button class="nav-btn primary" onclick="finishCooking()">סיום 🎉</button>`}
+    </div>
+  `;
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60).toString().padStart(2,'0');
+  const s = (secs % 60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+function handleTimer(stepIdx, total) {
+  const state = timers[stepIdx] || { remaining: total, running: false, done: false };
+  if (state.done) {
+    timers[stepIdx] = { remaining: total, running: false, done: false };
+    renderSteps(); return;
+  }
+  if (state.running) {
+    clearInterval(state.interval);
+    state.running = false;
+    timers[stepIdx] = state;
+    renderSteps(); return;
+  }
+  state.running = true;
+  state.interval = setInterval(() => {
+    state.remaining--;
+    const el = document.getElementById(`timer-${stepIdx}`);
+    if (el) {
+      el.textContent = formatTime(state.remaining);
+      el.className = 'timer-display running';
+    }
+    if (state.remaining <= 0) {
+      clearInterval(state.interval);
+      state.running = false;
+      state.done = true;
+      timers[stepIdx] = state;
+      renderSteps();
+    }
+  }, 1000);
+  timers[stepIdx] = state;
+  renderSteps();
+}
+
+let speakingStep = -1;
+let closedSteps = new Set();
+let currentAudio = null;
+
+function speakStep(i) {
+  if (speakingStep === i && window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    speakingStep = -1;
+    updateTtsBtn(i, false);
+    return;
+  }
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    if (speakingStep >= 0) updateTtsBtn(speakingStep, false);
+  }
+
+  const step = steps[i];
+  const rawHtml = getStepText(step);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = rawHtml;
+  const plainText = (tmp.textContent || tmp.innerText || '').trim();
+
+  const utt = new SpeechSynthesisUtterance(plainText);
+  utt.lang = 'he-IL';
+  utt.rate = 0.95;
+
+  const voices = window.speechSynthesis.getVoices();
+  const heVoice = voices.find(v => v.lang === 'he-IL') || voices.find(v => v.lang.startsWith('he'));
+  if (heVoice) utt.voice = heVoice;
+
+  utt.onstart = () => { speakingStep = i; updateTtsBtn(i, true); };
+  utt.onend   = () => { speakingStep = -1; updateTtsBtn(i, false); };
+  utt.onerror = () => { speakingStep = -1; updateTtsBtn(i, false); };
+
+  window.speechSynthesis.speak(utt);
+}
+
+function stopSpeaking() {
+  window.speechSynthesis.cancel();
+  if (speakingStep >= 0) updateTtsBtn(speakingStep, false);
+  speakingStep = -1;
+}
+
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+
+function updateTtsBtn(i, active) {
+  const btn = document.getElementById(`tts-btn-${i}`);
+  const lbl = document.getElementById(`tts-label-${i}`);
+  const icon = btn?.querySelector('.tts-icon');
+  if (!btn) return;
+  if (active) {
+    btn.classList.add('speaking');
+    if (lbl) lbl.textContent = 'עצור';
+    if (icon) icon.textContent = '⏹';
+  } else {
+    btn.classList.remove('speaking');
+    if (lbl) lbl.textContent = 'הקראה';
+    if (icon) icon.textContent = '🔊';
+  }
+}
+
+function toggleStep(i) {
+  if (cookingMode) return;
+  if (expandAll) {
+    // סגור/פתח שלב בודד בתוך expandAll
+    if (closedSteps.has(i)) {
+      closedSteps.delete(i);
+    } else {
+      closedSteps.add(i);
+      // אם לפחות שלב אחד סגור, בטל expandAll
+      expandAll = false;
+      document.getElementById('expand-toggle').classList.remove('on');
+    }
+    renderSteps();
+    return;
+  }
+  activeStep = activeStep === i ? -1 : i;
+  renderSteps();
+}
+
+function toggleExpandAll() {
+  expandAll = !expandAll;
+  closedSteps.clear();
+  document.getElementById('expand-toggle').classList.toggle('on', expandAll);
+  if (expandAll && cookingMode) {
+    cookingMode = false;
+    document.getElementById('cm-toggle').classList.remove('on');
+  }
+  renderSteps();
+}
+
+function toggleCookingMode() {
+  cookingMode = !cookingMode;
+  document.getElementById('cm-toggle').classList.toggle('on', cookingMode);
+  if (cookingMode && expandAll) {
+    expandAll = false;
+    document.getElementById('expand-toggle').classList.remove('on');
+  }
+  activeStep = 0;
+  renderSteps();
+}
+
+function goStep(i) {
+  activeStep = i;
+  renderSteps();
+  document.getElementById(`step-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function finishCooking() {
+  alert('🎉 בתיאבון! הגרהם קרקרס שלך מוכנים!');
+}
+
+function changeServings(delta) {
+  servings = Math.max(4, Math.min(48, servings + delta * 4));
+  document.getElementById('srv-count').textContent = servings;
+  document.getElementById('srv-sub').textContent = `${servings} קרקרס`;
+  renderIngredients();
+  renderSteps();
+}
+
+// init
+renderIngredients();
+renderSteps();
+</script>
+</body>
+</html>
