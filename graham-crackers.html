@@ -517,6 +517,12 @@
     <div class="toggle" id="expand-toggle" onclick="toggleExpandAll()"></div>
   </div>
 
+  <!-- VOICE SELECTOR -->
+  <div class="voice-selector-card">
+    <div class="voice-selector-label">🔊 קול הקראה</div>
+    <select class="voice-select" id="voice-select"></select>
+  </div>
+
   <!-- INGREDIENTS -->
   <div class="section-title">מצרכים</div>
   <div class="ingredients-card" id="ingredients-list">
@@ -765,17 +771,34 @@ let speakingStep = -1;
 let closedSteps = new Set();
 let currentAudio = null;
 
-function speakStep(i) {
-  if (speakingStep === i && window.speechSynthesis.speaking) {
-    window.speechSynthesis.cancel();
-    speakingStep = -1;
-    updateTtsBtn(i, false);
-    return;
-  }
-  if (window.speechSynthesis.speaking) {
-    window.speechSynthesis.cancel();
-    if (speakingStep >= 0) updateTtsBtn(speakingStep, false);
-  }
+const GOOGLE_TTS_KEY = 'AIzaSyCMACRlSxrtJMVZN48EKBf30417kmKhi8I';
+const GOOGLE_TTS_URL = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_KEY}`;
+
+const HE_VOICES = [
+  { name: 'he-IL-Wavenet-A', label: 'WaveNet A (נקבה)', gender: 'FEMALE' },
+  { name: 'he-IL-Wavenet-B', label: 'WaveNet B (זכר)',   gender: 'MALE'   },
+  { name: 'he-IL-Wavenet-C', label: 'WaveNet C (זכר)',   gender: 'MALE'   },
+  { name: 'he-IL-Wavenet-D', label: 'WaveNet D (נקבה)', gender: 'FEMALE' },
+];
+let selectedVoice = HE_VOICES[0];
+
+function initVoiceSelector() {
+  const sel = document.getElementById('voice-select');
+  if (!sel) return;
+  sel.innerHTML = HE_VOICES.map(v =>
+    `<option value="${v.name}">${v.label}</option>`
+  ).join('');
+  sel.value = selectedVoice.name;
+  sel.onchange = () => {
+    selectedVoice = HE_VOICES.find(v => v.name === sel.value) || HE_VOICES[0];
+  };
+}
+
+async function speakStep(i) {
+  if (speakingStep === i) { stopSpeaking(); return; }
+  stopSpeaking();
+  updateTtsBtn(i, true);
+  speakingStep = i;
 
   const step = steps[i];
   const rawHtml = getStepText(step);
@@ -783,28 +806,43 @@ function speakStep(i) {
   tmp.innerHTML = rawHtml;
   const plainText = (tmp.textContent || tmp.innerText || '').trim();
 
-  const utt = new SpeechSynthesisUtterance(plainText);
-  utt.lang = 'he-IL';
-  utt.rate = 0.95;
+  try {
+    const res = await fetch(GOOGLE_TTS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        input: { text: plainText },
+        voice: { languageCode: 'he-IL', name: selectedVoice.name, ssmlGender: selectedVoice.gender },
+        audioConfig: { audioEncoding: 'MP3', speakingRate: 1.0, pitch: 0 }
+      })
+    });
+    if (!res.ok) throw new Error(`שגיאת Google TTS: ${res.status}`);
+    const data = await res.json();
 
-  const voices = window.speechSynthesis.getVoices();
-  const heVoice = voices.find(v => v.lang === 'he-IL') || voices.find(v => v.lang.startsWith('he'));
-  if (heVoice) utt.voice = heVoice;
+    const binary = atob(data.audioContent);
+    const bytes = new Uint8Array(binary.length);
+    for (let j = 0; j < binary.length; j++) bytes[j] = binary.charCodeAt(j);
+    const blob = new Blob([bytes], { type: 'audio/mpeg' });
+    const url = URL.createObjectURL(blob);
 
-  utt.onstart = () => { speakingStep = i; updateTtsBtn(i, true); };
-  utt.onend   = () => { speakingStep = -1; updateTtsBtn(i, false); };
-  utt.onerror = () => { speakingStep = -1; updateTtsBtn(i, false); };
-
-  window.speechSynthesis.speak(utt);
+    const audio = new Audio(url);
+    currentAudio = audio;
+    audio.onended = () => { speakingStep = -1; updateTtsBtn(i, false); URL.revokeObjectURL(url); };
+    audio.onerror = () => { speakingStep = -1; updateTtsBtn(i, false); URL.revokeObjectURL(url); };
+    await audio.play();
+  } catch (err) {
+    console.error('[TTS]', err.message);
+    speakingStep = -1;
+    updateTtsBtn(i, false);
+    alert('שגיאה: ' + err.message);
+  }
 }
 
 function stopSpeaking() {
-  window.speechSynthesis.cancel();
+  if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; currentAudio = null; }
   if (speakingStep >= 0) updateTtsBtn(speakingStep, false);
   speakingStep = -1;
 }
-
-window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 
 function updateTtsBtn(i, active) {
   const btn = document.getElementById(`tts-btn-${i}`);
@@ -884,6 +922,7 @@ function changeServings(delta) {
 // init
 renderIngredients();
 renderSteps();
+initVoiceSelector();
 </script>
 </body>
 </html>
